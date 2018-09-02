@@ -13,7 +13,9 @@ import (
 
 func homeHandler(rw http.ResponseWriter, r *http.Request) {
 
-	page := page(filepath.Clean(r.URL.Path))
+	page, pageerror := page(filepath.Clean(r.URL.Path))
+
+	check(pageerror) //TODO: 404 and 500 here rather then panic
 
 	layout := filepath.Join("templates", "index.html")
 

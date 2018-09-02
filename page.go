@@ -18,8 +18,12 @@ func allPages() {
 
 }
 
-func page(name string) PageData {
+func page(name string) (PageData, error) {
 	fmt.Println(len(name))
+
+	//TODO: Check for folder
+	//TODO: check for extensions
+	//TODO: return errors
 
 	if (len(name) <= 1) {
 		fmt.Println("No Path show the index")
@@ -35,5 +39,5 @@ func page(name string) PageData {
 	unsafe := blackfriday.Run(input)
 	html := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
 
-	return PageData{PageTitle:"Nice", Content:template.HTML(html)}
+	return PageData{PageTitle:"Nice", Content:template.HTML(html)}, nil
 }
