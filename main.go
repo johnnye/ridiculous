@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,15 +8,33 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"gopkg.in/russross/blackfriday.v2"
 	"io/ioutil"
+	"path/filepath"
+	"html/template"
+	"fmt"
 )
+
+
+type PageData struct {
+	PageTitle string
+	Content   template.HTML
+}
 
 func homeHandler(rw http.ResponseWriter, r *http.Request) {
 	input, err := ioutil.ReadFile("test.md")
 	check(err)
-	fmt.Print(string(input))
 	unsafe := blackfriday.Run(input)
 	html := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
-	fmt.Fprintln(rw, string(html))
+
+	page := PageData{PageTitle:"Nice", Content:template.HTML(html)}
+
+	layout := filepath.Join("templates", "index.html")
+
+	tmpl := template.New("index")
+	tmpl, _ = tmpl.ParseFiles(layout)
+
+	err = tmpl.ExecuteTemplate(rw, "layout", page)
+	check(err)
+
 }
 
 func main() {
@@ -29,7 +46,7 @@ func main() {
 
 
 	http.HandleFunc("/", homeHandler)
-	log.Print(os.Getenv("PORT"))
+	fmt.Print(os.Getenv("PORT"))
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }
 
